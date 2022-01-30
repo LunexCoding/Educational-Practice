@@ -1,0 +1,36 @@
+body {
+    font-family:"Verdana", georgia, serif;
+	font-size: 14px;
+}
+
+h1 {
+  margin-bottom: 0;
+	color: #00831C;
+}
+
+h2 {
+	margin-top: 0;
+	color: #506D36;
+}
+
+div {
+   width: 400px;
+   margin: 60px auto;
+   background: url("https://img-fotki.yandex.ru/get/67890/136164467.17/0_12bc81_21263ac1_orig.png");
+   padding: 40px 80px;
+}
+
+p {
+	text-align: justify;
+}
+
+span {
+	font-size: 1.2em;
+
+}
+p a {
+    display: block;
+	text-align: center;
+	margin: 5px auto;
+	font-size: 0.8em;
+}

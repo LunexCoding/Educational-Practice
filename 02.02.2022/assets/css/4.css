@@ -1,0 +1,12 @@
+.icon {
+    max-height: 200px;
+    max-wight: 200px;
+}
+
+.icon:last-child {
+    float: right;
+}
+
+.colortext {
+    color: red;
+}
