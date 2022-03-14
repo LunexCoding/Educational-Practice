@@ -8,9 +8,9 @@ class Logger:
 
         self._file = open(self._filename, 'w', encoding='utf-8')
 
-    def writes(self, task, status, data):
+    def writes(self, task, status, data, responce):
 
-        stringForFile = f'''Задача: {task}\nСтатус: {status}\nДанные: {data}\n\n'''
+        stringForFile = f'''Задача: {task}\nСтатус: {status}\nДанные: {data}\nОтвет: {responce}\n\n'''
 
         self._file.write(stringForFile)
 
@@ -18,188 +18,203 @@ class Logger:
         self._file.close()
 
 
-log = Logger('log')
+log = Logger('File')
 
 
 class CharacterString:
 
-    def __init__(self, wordCount, letterCount, letterMinCount, letterMaxCount):
+    def __init__(self, wordCount, letterMinCount, letterMaxCount):
+        status = True
         self._wordCount = wordCount
-        self._letterCount = letterCount
         self._letterMinCount = letterMinCount
         self._letterMaxCount = letterMaxCount
-        status = True
-        log.writes('Инициализация', status, f'Число слов: {self._wordCount}, заданное кол-во символов: {self._letterCount},'
-                                f' мин. длина: {self._letterMinCount}, макс. длина: {self._letterMaxCount}')
+        self._letterCount = random.randint(self._letterMinCount, self._letterMaxCount)
+        log.writes('Инициализация', status, f'Число слов: {self._wordCount},'
+                                f' мин. длина: {self._letterMinCount}, макс. длина: {self._letterMaxCount}, выбранная длина: {self._letterCount}', None)
 
 
     def createRandomStringArray(self):
         status = False
         listRandomWords = []
         for word in range(self._wordCount):
-            letters = [chr(i) for i in range(ord('а'), ord('а')+32)]
-            listRandomWords.append(''.join(random.choice(letters) for i in range(self._letterCount)))
+            letters = [chr(i) for i in range(ord('а'), ord('а') + 32)]
+            listRandomWords.append(''.join(random.choice(letters) for i in range(random.randint(self._letterMinCount, self._letterMaxCount))))
             status = True
-
-        log.writes('Создание массива слов', status, data:=listRandomWords if status is True else None)
+        log.writes('Создание массива слов', status, None, listRandomWords if status is True else None)
         return listRandomWords
 
 
     def getSortedArrayRandomWordsTheEnding(self, array):
-        maxArray, minArray = array.index(max(array)), array.index(min(array))
-        array[maxArray], array[minArray] = array[minArray], array[maxArray]
-        log.writes('Поменять местами слова с максимальной и минимальной длиной при условии, что такие слова единственные ', True, array)
-        return array
+        status = True
+        responceArray = array.copy()
+        maxArray, minArray = responceArray.index(max(responceArray)), responceArray.index(min(responceArray))
+        responceArray[maxArray], responceArray[minArray] = responceArray[minArray], responceArray[maxArray]
+        log.writes('Поменять местами слова с максимальной и минимальной длиной при условии, что такие слова единственные', status, array, responceArray)
+        return responceArray
 
 
     def getFoundWordsToReplaceEndings(self, array):
-        return {index: word[:word.index(word[-2:])] + 'ая' + word[word.index(word[-2:])+2:] for index, word in enumerate(array) if len(word) == 5}
+        status = True
+        responceArray = array.copy()
+        for index, word in {index: word[:word.index(word[-2:])] + 'ая' + word[word.index(word[-2:])+2:] for index, word in enumerate(responceArray) if len(word) == 5}.items():
+            responceArray[index] = word
+        log.writes('Заменить окончания (последние два символа) на "ая" в словах, длина которых равна 5', status, array, responceArray)
+        return responceArray
 
 
     def getSortedArrayRandomWordsTheFirstLetter(self, array):
+        responceArray = array.copy()
+        letterFirst = None
+        letterLast = None
         status = False
-        indexWordTheLetter1 = None
-        indexWordTheLetter33 = None
-        for index, word in enumerate(array):
-            if word[0] == 'а':
-                indexWordTheLetter1 = index
 
-            elif word[0] == 'я':
-                indexWordTheLetter33 = index
+        if (len(list(filter(lambda x: x.startswith('а'), responceArray))) == 1) and (len(list(filter(lambda x: x.endswith('я'), responceArray))) == 1):
 
-        if indexWordTheLetter1 and indexWordTheLetter33 is not None:
-            array[indexWordTheLetter1], array[indexWordTheLetter33] = array[indexWordTheLetter33], array[indexWordTheLetter1]
+            for index, word in enumerate(responceArray):
+                if word[0] == 'а':
+                    letterFirst = index
+                if word[-1] == 'я':
+                    letterLast = index
+        if any([letterFirst, letterLast]):
+            responceArray[letterFirst], responceArray[letterLast] = responceArray[letterLast], responceArray[letterFirst]
             status = True
         log.writes("Поменять местами слово, начинающееся на 'a', со словом, оканчивающимся на 'я', при условии,"
-                   " что такие слова существуют и являются единственными", status, data:=array if status is True else None)
-        return array
+                   " что такие слова существуют и являются единственными", status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayDeletingLastsLettersWordsStartingWithFirstLetter(self, array, character):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if word[0] == character:
-                array[index] = word[:-3]
+                responceArray[index] = word[:-3]
                 status = True
-        log.writes('Удалить последние 3 символа из слов, начинающихся на "а"', status, data:=array if status is True else None)
-        return array
+        log.writes('Удалить последние 3 символа из слов, начинающихся на "а"', status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayDeletingFirstsLettersWordsEndingWithNeedEnding(self, array, ending):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if word[-2:] == ending:
-                array[index] = word[3:]
+                responceArray[index] = word[3:]
                 status = True
-        log.writes('Удалить первые 3 символа из слов, оканчивающихся на "ие"', status,
-                   data := array if status is True else None)
-        return array
+        log.writes('Удалить первые 3 символа из слов, оканчивающихся на "ие"', status, array,
+                   responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayComplementingWordsWithSymbolsIfNotMaxLength(self, array, character):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             while len(word) < self._letterMaxCount:
                 word += character
-            array[index] = word
+            responceArray[index] = word
             status = True
         log.writes('Дополнить символом "*" слова, имеющие длину меньше максимальной по варианту задания, до максимальной',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArraySymbolReplacementWordsTheRightLength(self, array, character):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) == self._letterCount:
-                array[index] = character * 3 + word[3:]
+                responceArray[index] = character * 3 + word[3:]
                 status = True
         log.writes('Заменить первые 3 символа слов, имеющих выбранную длину, на символ "*"',
-                    status, data := array if status is True else None)
-        return array
+                    status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayRemovingSpecificCharacterFromWordsTheRightLength(self, array, character):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) == self._letterCount:
-                array[index] = word.replace(character, '')
+                responceArray[index] = word.replace(character, '')
                 status = True
         log.writes('Удалить все символы "а" из слов, длина которых равна выбранной',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayReplacingCharacterWordsLessThanTheRightLength(self, array, characterOld, characterNew):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) < self._letterCount:
-                array[index] = word.replace(characterOld, characterNew)
+                responceArray[index] = word.replace(characterOld, characterNew)
                 status = True
         log.writes('Заменить все символы "a" на "d" в словах, длина которых меньше выбранной',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayCapitalizedWords(self, array):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) > self._letterCount:
-                array[index] = word.capitalize()
+                responceArray[index] = word.capitalize()
                 status = True
         log.writes('Заменить первые строчные буквы на заглавные в каждом слове, длина которого больше выбранной',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayInsertingSpaceInWordsLessThanMaxLength(self, array):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) == self._letterMaxCount - 1:
-                array[index] = word[:2] + ' ' + word[2:]
+                responceArray[index] = word[:2] + ' ' + word[2:]
                 status = True
         log.writes('Вставить пробел после первых 2-х символов в слова, имеющие длину, на 1 меньше максимальной по варианту задания',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayCapitalizedWordsWhichMoreRightLength(self, array):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) == self._letterCount:
-                array[index] = word.capitalize()
+                responceArray[index] = word.capitalize()
                 status = True
         log.writes('Заменить первую строчную букву на заглавную в словах, имеющих выбранную длину варианту задания',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
     def getArrayInsertingSpaceInWordsMinLength(self, array):
+        responceArray = array.copy()
         status = False
-        for index, word in enumerate(array):
+        for index, word in enumerate(responceArray):
             if len(word) == self._letterMinCount:
-                array[index] = word[:-2] + ' ' + word[-2:]
+                responceArray[index] = word[:-2] + ' ' + word[-2:]
                 status = True
         log.writes('Вставить пробел перед последними 2-мя символами в слова, имеющие минимальную по варианту задания длину',
-                   status, data := array if status is True else None)
-        return array
+                   status, array, responceArray if status is True else None)
+        return responceArray
 
 
-wordCount = random.randint(2, 5)
-letterCount = random.randint(4, 10)
+wordCount = 5
 letterMinCount = 4
-letterMaxCount = 10
+letterMaxCount = 9
 
 
-stringControlBlock = CharacterString(wordCount=wordCount, letterCount=letterCount, letterMinCount=letterMinCount,
+stringControlBlock = CharacterString(wordCount=wordCount, letterMinCount=letterMinCount,
                                      letterMaxCount=letterMaxCount)
 
+
 arrayGeneratedWords = stringControlBlock.createRandomStringArray()
-print(arrayGeneratedWords)
 print(stringControlBlock.getSortedArrayRandomWordsTheEnding(arrayGeneratedWords))
-for index, word in stringControlBlock.getFoundWordsToReplaceEndings(arrayGeneratedWords).items():
-    arrayGeneratedWords[index] = word
-print('new' ,arrayGeneratedWords)
+print(stringControlBlock.getFoundWordsToReplaceEndings(arrayGeneratedWords))
 print(stringControlBlock.getSortedArrayRandomWordsTheFirstLetter(arrayGeneratedWords))
 print(stringControlBlock.getArrayDeletingLastsLettersWordsStartingWithFirstLetter(arrayGeneratedWords, character='а'))
 print(stringControlBlock.getArrayDeletingFirstsLettersWordsEndingWithNeedEnding(arrayGeneratedWords, ending='ие'))
